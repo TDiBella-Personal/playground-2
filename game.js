@@ -10,7 +10,7 @@ const CONFIG = {
     CANVAS_WIDTH: 940,
     CANVAS_HEIGHT: 720,
     OFFSET_X: 230,
-    OFFSET_Y: 14,
+    OFFSET_Y: 9,
 
     COLORS: {
         BG:             '#12121a',
@@ -135,7 +135,7 @@ function hexKey(q, r) {
 function buildFortressMap() {
     const map = new Map();
 
-    // Helper: add a rectangular-ish block of floor hexes
+    // Helper: add a rectangular block of floor hexes
     function addRoom(q0, r0, w, h, roomName) {
         for (let dq = 0; dq < w; dq++) {
             for (let dr = 0; dr < h; dr++) {
@@ -147,7 +147,12 @@ function buildFortressMap() {
         }
     }
 
-    // Helper: add a single corridor hex
+    // Helper: add a single floor hex (for irregular rooms)
+    function addFloor(q, r, roomName) {
+        map.set(hexKey(q, r), { terrain: 'floor', room: roomName });
+    }
+
+    // Helper: add a single corridor hex (won't overwrite existing)
     function addCorridorHex(q, r) {
         if (!map.has(hexKey(q, r))) {
             map.set(hexKey(q, r), { terrain: 'corridor', room: null });
@@ -155,86 +160,96 @@ function buildFortressMap() {
     }
 
     // Helper: add entry hex
-    function addEntry(q, r) {
-        map.set(hexKey(q, r), { terrain: 'entry', room: 'entry' });
+    function addEntry(q, r, name) {
+        map.set(hexKey(q, r), { terrain: 'entry', room: name || 'entry' });
     }
 
-    // === Rooms ===
+    // === ROOMS ===
+    // The fortress has three infiltration routes converging on the Throne Chamber.
 
-    // Entry Hall (top center) — 5 wide, 2 tall
-    addRoom(6, 0, 5, 2, 'Entry Hall');
+    // GUARDHOUSE (top) — foyer inside the main gate
+    addRoom(6, 0, 5, 2, 'Guardhouse');
 
-    // Barracks (top-left) — 4 wide, 3 tall
-    addRoom(1, 2, 4, 3, 'Barracks');
+    // BARRACKS (top-left) — where Janizaries sleep
+    addRoom(1, 2, 3, 3, 'Barracks');
 
-    // Armory (top-right) — 4 wide, 3 tall
-    addRoom(12, 2, 4, 3, 'Armory');
+    // ARMORY (top-right) — weapon cache
+    addRoom(13, 2, 3, 3, 'Armory');
 
-    // Great Hall (center) — 6 wide, 3 tall
-    addRoom(5, 5, 7, 3, 'Great Hall');
+    // TORTURE CHAMBER (mid-left) — small grim room
+    addRoom(0, 5, 2, 2, 'Torture Chamber');
 
-    // Guard Post West — 3 wide, 2 tall
-    addRoom(1, 8, 3, 2, 'Guard Post');
+    // GREAT HALL (center) — ceremonial space
+    addRoom(5, 4, 6, 3, 'Great Hall');
 
-    // Guard Post East — 3 wide, 2 tall
-    addRoom(13, 8, 3, 2, 'Guard Post');
+    // LIBRARY (mid-right) — the CloneMaster's collected knowledge
+    addRoom(14, 5, 2, 2, 'Library');
 
-    // Clone Chamber (bottom center) — 6 wide, 3 tall
-    addRoom(5, 10, 7, 3, 'Clone Chamber');
+    // KITCHEN (lower-left) — connects to garbage chute
+    addRoom(0, 8, 3, 3, 'Kitchen');
 
-    // Exit Hall (bottom) — 3 wide, 1 tall
-    addRoom(7, 13, 3, 1, 'Exit Hall');
+    // CLONE VATS (center-lower) — the heart of the fortress
+    addRoom(4, 8, 8, 3, 'Clone Vats');
 
-    // === Entry points ===
-    addEntry(6, 0);
-    addEntry(10, 0);
-    addEntry(8, 13);
+    // BOILER ROOM (lower-right) — connects to sewer
+    addRoom(13, 8, 3, 3, 'Boiler Room');
 
-    // === Corridors ===
+    // THRONE CHAMBER (bottom) — the CloneMaster's lair
+    addRoom(5, 11, 6, 3, 'Throne Chamber');
 
-    // Entry Hall down to Barracks area
-    addCorridorHex(5, 2);
+    // === ENTRY POINTS ===
+    // Main Gate: dual entries inside the Guardhouse
+    addEntry(7, 0, 'Main Gate');
+    addEntry(9, 0, 'Main Gate');
+    // Garbage Chute: bottom-left infiltration
+    addEntry(2, 12, 'Garbage Chute');
+    // Sewer: bottom-right infiltration
+    addEntry(14, 12, 'Sewer');
+
+    // === CORRIDORS (narrow chokepoints between rooms) ===
+
+    // Guardhouse → Barracks (west passage)
     addCorridorHex(5, 1);
+    addCorridorHex(5, 2);
 
-    // Entry Hall down to Armory area
-    addCorridorHex(11, 2);
+    // Guardhouse → Armory (east passage)
     addCorridorHex(11, 1);
+    addCorridorHex(12, 1);
+    addCorridorHex(12, 2);
 
-    // Entry Hall down to Great Hall
+    // Guardhouse → Great Hall (central descent)
     addCorridorHex(8, 2);
     addCorridorHex(8, 3);
-    addCorridorHex(8, 4);
 
-    // Barracks south to Great Hall connector
-    addCorridorHex(4, 5);
+    // Barracks → Great Hall (single-hex chokepoint)
     addCorridorHex(4, 4);
-    addCorridorHex(3, 5);
 
-    // Armory south to Great Hall connector
-    addCorridorHex(12, 5);
+    // Armory → Great Hall (two-hex chokepoint)
+    addCorridorHex(11, 4);
     addCorridorHex(12, 4);
-    addCorridorHex(13, 5);
 
-    // Great Hall west to Guard Post West
-    addCorridorHex(4, 7);
-    addCorridorHex(4, 8);
-    addCorridorHex(3, 8);
-    addCorridorHex(4, 6);
+    // Torture Chamber → Kitchen (vertical corridor)
+    addCorridorHex(1, 7);
 
-    // Great Hall east to Guard Post East
-    addCorridorHex(12, 7);
-    addCorridorHex(12, 8);
-    addCorridorHex(13, 7);
-    addCorridorHex(12, 6);
+    // Library → Boiler Room (vertical corridor)
+    addCorridorHex(14, 7);
 
-    // Great Hall south to Clone Chamber
-    addCorridorHex(8, 8);
-    addCorridorHex(8, 9);
+    // Great Hall → Clone Vats (single-hex chokepoint, central)
+    addCorridorHex(8, 7);
 
-    // Clone Chamber south to Exit Hall
-    addCorridorHex(8, 12);
+    // Kitchen → Clone Vats (west entry to vats)
+    addCorridorHex(3, 9);
 
-    // === Wall border ===
+    // Boiler Room → Clone Vats (east entry to vats)
+    addCorridorHex(12, 9);
+
+    // Kitchen → Garbage Chute (downward)
+    addCorridorHex(2, 11);
+
+    // Boiler Room → Sewer (downward)
+    addCorridorHex(14, 11);
+
+    // === WALL BORDER ===
     addWallBorder(map);
 
     return map;
@@ -271,14 +286,18 @@ function isWalkable(map, q, r) {
 
 function createUnits() {
     return [
-        { id: 'T1', type: 'terminator',  name: 'Ryu',  label: 'R', q: 7, r: 0,  side: 'terminator' },
-        { id: 'T2', type: 'terminator',  name: 'Kira', label: 'K', q: 9, r: 0,  side: 'terminator' },
-        { id: 'T3', type: 'terminator',  name: 'Zhen', label: 'Z', q: 8, r: 13, side: 'terminator' },
-        { id: 'J1', type: 'janizary',    name: 'Jelly', label: 'J', q: 2, r: 3, side: 'clonemaster' },
-        { id: 'J2', type: 'janizary',    name: 'Jelly', label: 'J', q: 13, r: 3, side: 'clonemaster' },
-        { id: 'J3', type: 'janizary',    name: 'Jelly', label: 'J', q: 2, r: 8, side: 'clonemaster' },
-        { id: 'J4', type: 'janizary',    name: 'Jelly', label: 'J', q: 14, r: 8, side: 'clonemaster' },
-        { id: 'CM', type: 'clonemaster', name: 'CloneMaster', label: 'CM', q: 8, r: 11, side: 'clonemaster' },
+        // Three Terminators infiltrate from three different routes
+        { id: 'T1', type: 'terminator',  name: 'Ryu',  label: 'R', q: 7,  r: 0,  side: 'terminator' },   // Main Gate
+        { id: 'T2', type: 'terminator',  name: 'Kira', label: 'K', q: 2,  r: 12, side: 'terminator' },   // Garbage Chute
+        { id: 'T3', type: 'terminator',  name: 'Zhen', label: 'Z', q: 14, r: 12, side: 'terminator' },   // Sewer
+        // Janizary guards stationed throughout the fortress
+        { id: 'J1', type: 'janizary',    name: 'Jelly', label: 'J', q: 2,  r: 3,  side: 'clonemaster' }, // Barracks
+        { id: 'J2', type: 'janizary',    name: 'Jelly', label: 'J', q: 14, r: 3,  side: 'clonemaster' }, // Armory
+        { id: 'J3', type: 'janizary',    name: 'Jelly', label: 'J', q: 1,  r: 9,  side: 'clonemaster' }, // Kitchen
+        { id: 'J4', type: 'janizary',    name: 'Jelly', label: 'J', q: 14, r: 9,  side: 'clonemaster' }, // Boiler
+        { id: 'J5', type: 'janizary',    name: 'Jelly', label: 'J', q: 7,  r: 5,  side: 'clonemaster' }, // Great Hall
+        // CloneMaster sits in the Throne Chamber
+        { id: 'CM', type: 'clonemaster', name: 'CloneMaster', label: 'CM', q: 7, r: 12, side: 'clonemaster' },
     ];
 }
 
@@ -459,7 +478,7 @@ function renderHighlights() {
 }
 
 function renderRoomLabels() {
-    // Collect room centers
+    // Collect room centers (floor hexes only)
     const roomHexes = {};
     for (const [key, cell] of gameState.map) {
         if (cell.room && cell.terrain === 'floor') {
@@ -478,8 +497,6 @@ function renderRoomLabels() {
     ctx.textBaseline = 'middle';
 
     for (const [room, hexes] of Object.entries(roomHexes)) {
-        if (room === 'entry') continue;
-        // Average position
         let sx = 0, sy = 0;
         for (const h of hexes) {
             const p = hexToPixel(h.q, h.r);
@@ -487,6 +504,36 @@ function renderRoomLabels() {
             sy += p.y;
         }
         ctx.fillText(room.toUpperCase(), sx / hexes.length, sy / hexes.length);
+    }
+
+    // Entry point labels (rendered in green near the entry hexes)
+    ctx.font = '7px Courier New';
+    ctx.fillStyle = 'rgba(0, 255, 136, 0.55)';
+
+    // Group entries by name to avoid duplicate labels
+    const entryGroups = {};
+    for (const [key, cell] of gameState.map) {
+        if (cell.terrain === 'entry') {
+            if (!entryGroups[cell.room]) entryGroups[cell.room] = [];
+            const parts = key.split(',');
+            entryGroups[cell.room].push({
+                q: parseInt(parts[0]),
+                r: parseInt(parts[1]),
+            });
+        }
+    }
+    for (const [name, hexes] of Object.entries(entryGroups)) {
+        let sx = 0, sy = 0;
+        for (const h of hexes) {
+            const p = hexToPixel(h.q, h.r);
+            sx += p.x;
+            sy += p.y;
+        }
+        const cx = sx / hexes.length;
+        const cy = sy / hexes.length;
+        // Label placement: above if top of map, below otherwise
+        const offsetY = cy < CONFIG.CANVAS_HEIGHT / 2 ? -CONFIG.HEX_SIZE - 4 : CONFIG.HEX_SIZE + 8;
+        ctx.fillText(name.toUpperCase(), cx, cy + offsetY);
     }
 }
 
