@@ -8,17 +8,16 @@
 </head>
 <body>
     <div id="game-container">
-        <h1 id="title">KUNG FU 2100</h1>
         <div id="hud">
-            <span id="round-display">Round 1</span>
-            <span id="turn-display">TERMINATOR PHASE</span>
-            <span id="instructions">Select a unit to move</span>
+            <span id="turn-display">Turn 1/10</span>
+            <span id="phase-display" class="terminator">TERMINATOR MOVE 1</span>
+            <span id="instructions">Click entry point to deploy Terminators</span>
         </div>
         <div id="canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
         </div>
         <div id="controls">
-            <button id="endTurnBtn">END TURN</button>
+            <button id="endPhaseBtn">END PHASE</button>
         </div>
     </div>
     <script src="game.js"></script>

@@ -10,62 +10,55 @@ body {
     font-family: 'Courier New', Courier, monospace;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
-    overflow: hidden;
+    padding-top: 10px;
 }
 
 #game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-}
-
-#title {
-    font-size: 36px;
-    letter-spacing: 12px;
-    color: #00e5ff;
-    text-shadow: 0 0 20px rgba(0, 229, 255, 0.4), 0 0 40px rgba(0, 229, 255, 0.15);
-    text-align: center;
+    gap: 6px;
 }
 
 #hud {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 8px 24px;
+    gap: 20px;
+    padding: 6px 20px;
     background: rgba(18, 18, 26, 0.9);
     border: 1px solid #2a2a3a;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
 }
 
-#round-display {
+#turn-display {
     color: #8a8a9a;
+    font-weight: bold;
 }
 
-#turn-display {
+#phase-display {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
     transition: color 0.3s;
 }
 
-#turn-display.terminator {
+#phase-display.terminator {
     color: #00e5ff;
     text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
 }
 
-#turn-display.clonemaster {
+#phase-display.clonemaster {
     color: #d500f9;
     text-shadow: 0 0 10px rgba(213, 0, 249, 0.4);
 }
 
 #instructions {
     color: #6a6a7a;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 #canvas-wrapper {
@@ -84,25 +77,25 @@ canvas {
     gap: 12px;
 }
 
-#endTurnBtn {
+#endPhaseBtn {
     background: transparent;
     color: #b0e0e0;
     border: 1px solid #4a4a5a;
-    padding: 10px 32px;
+    padding: 8px 28px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 3px;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-#endTurnBtn:hover {
+#endPhaseBtn:hover {
     border-color: #00e5ff;
     color: #00e5ff;
     box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
-#endTurnBtn:active {
+#endPhaseBtn:active {
     background: rgba(0, 229, 255, 0.1);
 }
